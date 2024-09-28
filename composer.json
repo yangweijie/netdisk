@@ -21,6 +21,7 @@
     ],
     "require": {
         "php": ">=7.2.5",
+        "ext-fileinfo": "*",
         "ext-json": "*",
         "ext-pdo": "*",
         "inhere/php-validate": "^2.8",
