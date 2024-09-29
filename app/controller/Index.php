@@ -35,20 +35,23 @@ class Index extends BaseController {
         $tmp = $this->tmp;
         $tmp_dir = $this->tmp_dir;
         $file = $_REQUEST['file'] ?? '.';
+        if(empty($file)){
+            $file = '.';
+        }
         if($this->request->isPost()){
             if($tmp === false){
-                err(404,'File or Directory Not Found');
+                return err(404,'File or Directory Not Found');
             }
             if(substr($tmp, 0,strlen($tmp_dir)) !== $tmp_dir){
-                err(403, 'Forbidden');
+                return err(403, 'Forbidden');
             }
             if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0){
-                err(403, 'Forbidden');
+                return err(403, 'Forbidden');
             }
             if(preg_match('@^.+://@',$_REQUEST['file'])) {
-                err(403, 'Forbidden');
+                return err(403, 'Forbidden');
             }
-            $do = $this->request->get('do', '');
+            $do = $this->request->post('do', '');
             switch ($do){
                 case 'delete':
                     $this->delete($file);
@@ -63,6 +66,7 @@ class Index extends BaseController {
                     ;
                     break;
             }
+            return json();
         }else{
             if($do = $this->request->get('do', '')){
                 switch ($do){
@@ -105,7 +109,7 @@ class Index extends BaseController {
             usort($result,function($f1,$f2){
                 $f1_key = ($f1['is_dir']?:2) . $f1['name'];
                 $f2_key = ($f2['is_dir']?:2) . $f2['name'];
-                return $f1_key > $f2_key;
+                return $f1_key > $f2_key?1: ($f1_key == $f2_key?0:-1);
             });
             return json(['success' => true, 'is_writable' => is_writable($file), 'results' =>$result]);
         } else {
@@ -143,16 +147,16 @@ class Index extends BaseController {
 
     private function mkdir($file)
     {
+        trace($this->config);
         extract($this->config);
         if($allow_create_folder){
             $dir = $_POST['name'];
             $dir = str_replace('/', '', $dir);
             if(substr($dir, 0, 2) === '..'){
-                exit;
+                return;
             }
             chdir($file);
             @mkdir($_POST['name']);
-            exit;
         }
     }
 
@@ -165,7 +169,6 @@ class Index extends BaseController {
                     return err(403,"Files of this type are not allowed.");
                 }
             $res = move_uploaded_file($_FILES['file_data']['tmp_name'], $file.'/'.$_FILES['file_data']['name']);
-            exit;
         }
     }
 }
