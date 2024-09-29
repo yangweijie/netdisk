@@ -2,7 +2,8 @@
 namespace app\controller;
 
 use app\BaseController;
-
+use DiskHelper;
+use think\facade\Filesystem;
 
 class Index extends BaseController {
 
@@ -22,21 +23,26 @@ class Index extends BaseController {
     protected function initialize()
     {
         $tmp_dir = dirname($_SERVER['SCRIPT_FILENAME']);
+//        trace('tmp_dir:'.$tmp_dir);
         if(DIRECTORY_SEPARATOR==='\\') $tmp_dir = str_replace('/',DIRECTORY_SEPARATOR,$tmp_dir);
         $path = isset($_REQUEST['file'])? $tmp_dir . '/'.$_REQUEST['file'] : $tmp_dir . '/';
         $tmp = get_absolute_path($path);
+//        trace('tmp:'. $tmp);
         $this->tmp = $tmp;
         $this->tmp_dir = $tmp_dir;
         $config = config('disk', []);
         $this->config = $config;
+        DiskHelper::config($config);
     }
 
    public function index(){
+
+//        dd(Filesystem::listContents());
         $tmp = $this->tmp;
         $tmp_dir = $this->tmp_dir;
         $file = $_REQUEST['file'] ?? '.';
         if(empty($file)){
-            $file = '.';
+            $file = '';
         }
         if($this->request->isPost()){
             if($tmp === false){
@@ -74,7 +80,7 @@ class Index extends BaseController {
                         return $this->list($file);
                         break;
                     default:
-                        $this->download($file);
+                        return $this->download($file);
                         break;
                 }
             }
@@ -83,38 +89,38 @@ class Index extends BaseController {
         }
    }
 
-    private function list($file)
+    private function list($file = '')
     {
         extract($this->config);
-        if (is_dir($file)) {
-            $directory = $file;
-            $result = [];
-            $files = array_diff(scandir($directory), ['.','..']);
-            foreach ($files as $entry) if (!is_entry_ignored($entry, $allow_show_folders, $hidden_patterns)) {
-                $i = $directory . '/' . $entry;
-                $stat = stat($i);
+        $files = Filesystem::listContents($file);
+//        dd($files);
+        $result = [];
+        foreach ($files as $entry){
+            $i = $file.'/'.$entry['basename'];
+//            dd($i);
+            $fileInfo = DiskHelper::getSplFile($i);
+            if(false === DiskHelper::is_entry_ignored($entry)){
                 $result[] = [
-                    'mtime' => $stat['mtime'],
-                    'size' => $stat['size'],
-                    'name' => basename($i),
-                    'path' => preg_replace('@^\./@', '', $i),
-                    'is_dir' => is_dir($i),
-                    'is_deleteable' => $allow_delete && ((!is_dir($i) && is_writable($directory)) ||
-                            (is_dir($i) && is_writable($directory) && is_recursively_deleteable($i))),
-                    'is_readable' => is_readable($i),
-                    'is_writable' => is_writable($i),
-                    'is_executable' => is_executable($i),
+                    'mtime'=>$entry['timestamp'],
+                    'size'=>$entry['size']??0,
+                    'name'=>$entry['basename'],
+                    'path'=>preg_replace('@^\./@', '', $i),
+                    'is_dir'=>$entry['type'] === 'dir',
+                    'is_deleteable'=>true,
+                    'is_readable' => true,
+                    'is_writable' => true,
+                    'is_executable' => false,
                 ];
             }
-            usort($result,function($f1,$f2){
-                $f1_key = ($f1['is_dir']?:2) . $f1['name'];
-                $f2_key = ($f2['is_dir']?:2) . $f2['name'];
-                return $f1_key > $f2_key?1: ($f1_key == $f2_key?0:-1);
-            });
-            return json(['success' => true, 'is_writable' => is_writable($file), 'results' =>$result]);
-        } else {
-            return err(412, 'Not a Directory');
         }
+
+        usort($result, function($f1,$f2){
+            $f1_key = ($f1['is_dir']?:2) . $f1['name'];
+            $f2_key = ($f2['is_dir']?:2) . $f2['name'];
+            return $f1_key > $f2_key?1: ($f1_key == $f2_key?0:-1);
+        });
+
+        return json(['success' => true, 'is_writable' => true, 'results' =>$result]);
     }
 
     private function download($file)
@@ -125,38 +131,33 @@ class Index extends BaseController {
                 err(403, 'Files of this type are not allowed.');
             }
         }
-
         $filename = basename($file);
-        $finfo = finfo_open(FILEINFO_MIME_TYPE);
-        header('Content-Type: ' . finfo_file($finfo, $file));
-        header('Content-Length: '. filesize($file));
-        header(sprintf('Content-Disposition: attachment; filename=%s',
-            strpos('MSIE',$_SERVER['HTTP_REFERER']) ? rawurlencode($filename) : "\"$filename\"" ));
-        ob_flush();
-        readfile($file);
-        exit;
+        $content = Filesystem::read($file);
+        return downloadContent($content, $filename);
     }
 
     private function delete($file)
     {
         extract($this->config);
         if($allow_delete) {
-            rmrf($file);
+            if(DiskHelper::is_dir($file)){
+                Filesystem::deleteDir($file);
+            }else{
+                Filesystem::delete($file);
+            }
         }
     }
 
     private function mkdir($file)
     {
-        trace($this->config);
         extract($this->config);
         if($allow_create_folder){
-            $dir = $_POST['name'];
-            $dir = str_replace('/', '', $dir);
+            $file = str_replace('/', '', $file);
+            $dir = $file.'/'.$_POST['name'];
             if(substr($dir, 0, 2) === '..'){
                 return;
             }
-            chdir($file);
-            @mkdir($_POST['name']);
+            Filesystem::createDir($dir, Filesystem::getConfig());
         }
     }
 

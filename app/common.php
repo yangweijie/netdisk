@@ -71,3 +71,15 @@ function err($code,$msg) {
     ];
     return json($data, $code, [], [JSON_UNESCAPED_UNICODE]);
 }
+
+//====
+
+
+function downloadContent($content, $downloadFileName)
+{
+    $response = new FileResponse($content);
+    return $response->name($downloadFileName, false)
+        ->isContent()
+        ->force(false)
+        ->expire(1);
+}
