@@ -22,9 +22,9 @@ function rmrf($dir) {
         $files = array_diff(scandir($dir), ['.','..']);
         foreach ($files as $file)
             rmrf("$dir/$file");
-        rmdir($dir);
+        @rmdir($dir);
     } else {
-        unlink($dir);
+        @unlink($dir);
     }
 }
 
