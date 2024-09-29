@@ -98,7 +98,7 @@ class Index extends BaseController {
         foreach ($files as $entry){
             $i = $file.'/'.$entry['basename'];
 //            dd($i);
-            $fileInfo = DiskHelper::getSplFile($i);
+//            $fileInfo = DiskHelper::getSplFile($i);
             if(false === DiskHelper::is_entry_ignored($entry)){
                 $result[] = [
                     'mtime'=>$entry['timestamp'],
@@ -165,11 +165,14 @@ class Index extends BaseController {
     {
         extract($this->config);
         if($allow_upload){
-            foreach($disallowed_patterns as $pattern)
+            foreach($disallowed_patterns as $pattern){
                 if(fnmatch($pattern, $_FILES['file_data']['name'])){
-                    return err(403,"Files of this type are not allowed.");
+                    return err(403, 'Files of this type are not allowed.');
                 }
-            $res = move_uploaded_file($_FILES['file_data']['tmp_name'], $file.'/'.$_FILES['file_data']['name']);
+            }
+            $upload = request()->file('file_data');
+            Filesystem::write($file.'/'.$upload->getOriginalName(), file_get_contents($upload->getPathname()));
         }
+        return true;
     }
 }
