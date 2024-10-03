@@ -12,8 +12,8 @@ return [
         'github'=>[
             'type'=>'github',
             'token'=>Env::get('filesystem.GITHUB_ACCESS_TOKEN', ''),
-            'username'=>'yangweijie',
-            'repository'=>'attachment',
+            'username'=>Env::get('filesystem.GITHUB_USERNAME', 'yangweijie'),
+            'repository'=>Env::get('filesystem.GITHUB_REPOSITORY', 'attachment'),
             'hostIndex'  => 'jsdelivr',
         ],
 		'public' => [

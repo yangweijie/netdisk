@@ -1,4 +1,5 @@
 <?php
+use think\facade\Env;
 return [
     'allow_delete'=>true,
     'allow_upload'=>true,
@@ -10,5 +11,6 @@ return [
     ],
     'hidden_patterns'=>[
         '*.php','.*'
-    ]
+    ],
+    'password'=>Env::get('disk.password', ''),
 ];

@@ -93,7 +93,6 @@ class Index extends BaseController {
     {
         extract($this->config);
         $files = Filesystem::listContents($file);
-//        dd($files);
         $result = [];
         foreach ($files as $entry){
             $i = $file.'/'.$entry['basename'];
@@ -101,7 +100,7 @@ class Index extends BaseController {
 //            $fileInfo = DiskHelper::getSplFile($i);
             if(false === DiskHelper::is_entry_ignored($entry)){
                 $result[] = [
-                    'mtime'=>$entry['timestamp'],
+                    'mtime'=>$entry['timestamp']??time(),
                     'size'=>$entry['size']??0,
                     'name'=>$entry['basename'],
                     'path'=>preg_replace('@^\./@', '', $i),
