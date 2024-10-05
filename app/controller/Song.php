@@ -4,7 +4,7 @@ namespace app\controller;
 
 use app\BaseController;
 use think\facade\Filesystem;
-
+use wapmorgan\Mp3Info\Mp3Info;
 class Song extends BaseController
 {
     public function index(){
@@ -28,16 +28,26 @@ class Song extends BaseController
         if($files){
             foreach ($files as $file){
                 if($file['type'] === 'file'){
-                    $songs[] = [
-                        'name'=> $file['basename'],
-                        'artist'=> '未知',
-                        'url'=> 'url.mp3',
-                        'cover'=> ''
-                    ];
+                    if(in_array($file['extension'], ['mp3'])){
+                        $names = explode('-', $file['filename']);
+                        $song = [
+                            'name'=> $names[0],
+                            'artist'=> $names[1]??'未知',
+                            'url'=> Filesystem::url($file['path']),
+                        ];
+                        $lrcFile = str_replace($file['extension'], 'lrc', $file['path']);
+                        if(Filesystem::has($lrcFile)){
+                            $song['lrc'] = Filesystem::url($lrcFile);
+                            $cover = str_replace($file['extension'], 'jpg', $file['path']);
+                            $song['cover'] = Filesystem::url($cover);
+                        }
+                        $songs[] = $song;
+                    }
                 }
             }
         }
-        dd($songs);
-        return view('album',['dir'=>$dir,'songs'=>$songs]);
+        $songs = json_encode($songs,  JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        trace($songs);
+        return view('album',['dir'=>$dir,'songs'=> $songs]);
     }
 }

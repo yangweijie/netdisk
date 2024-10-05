@@ -23,11 +23,11 @@ class Index extends BaseController {
     protected function initialize()
     {
         $tmp_dir = dirname($_SERVER['SCRIPT_FILENAME']);
-//        trace('tmp_dir:'.$tmp_dir);
+        trace('tmp_dir:'.$tmp_dir);
         if(DIRECTORY_SEPARATOR==='\\') $tmp_dir = str_replace('/',DIRECTORY_SEPARATOR,$tmp_dir);
         $path = isset($_REQUEST['file'])? $tmp_dir . '/'.$_REQUEST['file'] : $tmp_dir . '/';
         $tmp = get_absolute_path($path);
-//        trace('tmp:'. $tmp);
+        trace('tmp:'. $tmp);
         $this->tmp = $tmp;
         $this->tmp_dir = $tmp_dir;
         $config = config('disk', []);
@@ -48,14 +48,14 @@ class Index extends BaseController {
             if($tmp === false){
                 return err(404,'File or Directory Not Found');
             }
-            if(substr($tmp, 0,strlen($tmp_dir)) !== $tmp_dir){
-                return err(403, 'Forbidden');
-            }
-            if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0){
-                return err(403, 'Forbidden');
-            }
+//            if(substr($tmp, 0,strlen($tmp_dir)) !== $tmp_dir){
+//                return err(403, 'Forbidden');
+//            }
+//            if(strpos($_REQUEST['file'], DIRECTORY_SEPARATOR) === 0){
+//                return err(403, 'Forbidden1');
+//            }
             if(preg_match('@^.+://@',$_REQUEST['file'])) {
-                return err(403, 'Forbidden');
+                return err(403, 'Forbidden2');
             }
             $do = $this->request->post('do', '');
             switch ($do){

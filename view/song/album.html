@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>专辑/歌单 【{$dir}】</title>
+    <link rel="stylesheet" href="/pico.min.css">
+    <link rel="stylesheet" href="/APlayer.min.css">
+    <script src="/APlayer.min.js"></script>
+    <script src="/color-thief.js"></script>
+</head>
+<body>
+    <main class="container" style="max-width: 900px">
+        <a role="button" tabindex="0" href="/song">回到列表</a>
+        <div id="aplayer01"></div>
+        <script type="text/javascript">
+            const ap = new APlayer({
+                //定义容器
+                container: document.getElementById('aplayer01'),
+                mini: false,
+                autoplay: false,
+                theme: '#FADFA3',
+                loop: 'all',
+                preload: 'auto',
+                volume: 0.7,
+                mutex: true,
+                listFolded: false,
+                listMaxHeight: 90,
+                lrcType: 3,
+
+                //关于音频的相关参数：
+                audio: {$songs|raw}
+            });
+
+            const colorThief = new ColorThief();
+            const image = new Image();
+            const xhr = new XMLHttpRequest();
+            const setTheme = (index) => {
+                if (!ap.list.audios[index].theme) {
+                    xhr.onload = function(){
+                        let coverUrl = URL.createObjectURL(this.response);
+                        image.onload = function(){
+                            let color = colorThief.getColor(image);
+                            ap.theme(`rgb(${color[0]}, ${color[1]}, ${color[2]})`, index);
+                            URL.revokeObjectURL(coverUrl)
+                        };
+                        image.src = coverUrl;
+                    }
+                    xhr.open('GET', ap.list.audios[index].cover, true);
+                    xhr.responseType = 'blob';
+                    xhr.send();
+                }
+            };
+            setTheme(ap.list.index);
+            ap.on('listswitch', (index) => {
+                setTheme(index);
+            });
+        </script>
+    </main>
+</body>
+</html>

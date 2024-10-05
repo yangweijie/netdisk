@@ -6,8 +6,17 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>专辑列表</title>
+    <link rel="stylesheet" href="/pico.min.css">
 </head>
 <body>
-    
+    <main class="container" style="max-width: 900px">
+        <ul>
+            {volist name="dirs" id="dir"}
+            <li>
+                <a href="{:url('album', ['name'=>$dir['name']])}">{$dir.name}</a>
+            </li>
+            {/volist}
+        </ul>
+    </main>
 </body>
 </html>

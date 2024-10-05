@@ -108,9 +108,11 @@
             $('#table').tablesorter();
 
             $('#table').on('click','.delete',function(data) {
-                $.post("",{'do':'delete',file:$(this).attr('data-file'),xsrf:XSRF},function(response){
-                    list();
-                },'json');
+                if(confirm('确认删除吗？')){
+                    $.post("",{'do':'delete',file:$(this).attr('data-file'),xsrf:XSRF},function(response){
+                        list();
+                    },'json');
+                }
                 return false;
             });
 

@@ -31,6 +31,7 @@
         "topthink/think-trace": "dev-master",
         "topthink/think-view": "^1.0",
         "verbalexpressions/php-verbal-expressions": "dev-master",
+        "wapmorgan/mp3info": "^0.1.0",
         "yangweijie/think-filesystem-driver-github": "dev-main",
         "yzh52521/easyhttp": "^1.1"
     },
