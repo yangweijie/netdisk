@@ -47,7 +47,7 @@ class Song extends BaseController
             }
         }
         $songs = json_encode($songs,  JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
-        trace($songs);
+//        trace($songs);
         return view('album',['dir'=>$dir,'songs'=> $songs]);
     }
 }
