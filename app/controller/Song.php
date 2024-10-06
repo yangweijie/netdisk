@@ -43,7 +43,7 @@ class Song extends BaseController
                         ];
                         $lrcFile = str_replace($file['extension'], 'lrc', $file['path']);
                         if(Filesystem::has($lrcFile)){
-                            $song['lrc'] = Filesystem::url($lrcFile);
+                            $song['lrc'] = Filesystem::read($lrcFile);
                         }
                         if($cover){
                             $song['cover'] = $cover;

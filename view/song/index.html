@@ -13,7 +13,7 @@
         <ul>
             {volist name="dirs" id="dir"}
             <li>
-                <a href="{:url('album', ['name'=>$dir['name']])}">{$dir.name}</a>
+                <a href="{:url('album', ['name'=>$dir['filename']])}">{$dir.filename}</a>
             </li>
             {/volist}
         </ul>
