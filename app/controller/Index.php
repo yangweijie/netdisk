@@ -80,6 +80,7 @@ class Index extends BaseController {
                         return $this->list($file);
                         break;
                     default:
+                        trace($file);
                         return $this->download($file);
                         break;
                 }
@@ -109,6 +110,7 @@ class Index extends BaseController {
                     'is_readable' => true,
                     'is_writable' => true,
                     'is_executable' => false,
+                    'url'=>Filesystem::url(preg_replace('@^\./@', '', $i)),
                 ];
             }
         }
@@ -124,15 +126,7 @@ class Index extends BaseController {
 
     private function download($file)
     {
-        extract($this->config);
-        foreach($disallowed_patterns as $pattern){
-            if(fnmatch($pattern, $file)){
-                err(403, 'Files of this type are not allowed.');
-            }
-        }
-        $filename = basename($file);
-        $content = Filesystem::read($file);
-        return downloadContent($content, $filename);
+        return json(['success'=>true, 'url'=>Filesystem::url($file)]);
     }
 
     private function delete($file)
