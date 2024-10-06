@@ -14,7 +14,7 @@ return [
             'token'=>Env::get('filesystem.GITHUB_ACCESS_TOKEN', ''),
             'username'=>Env::get('filesystem.GITHUB_USERNAME', 'yangweijie'),
             'repository'=>Env::get('filesystem.GITHUB_REPOSITORY', 'attachment'),
-            'hostIndex'  => 'jsdelivr',
+            'hostIndex'  => Env::get('filesystem.GITHUB_HOST_INDEX', 'jsdelivr'),
             'branch'=>Env::get('filesystem.GITHUB_BRANCH', 'main'),
         ],
 		'public' => [
