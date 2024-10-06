@@ -15,6 +15,7 @@ return [
             'username'=>Env::get('filesystem.GITHUB_USERNAME', 'yangweijie'),
             'repository'=>Env::get('filesystem.GITHUB_REPOSITORY', 'attachment'),
             'hostIndex'  => 'jsdelivr',
+            'branch'=>Env::get('filesystem.GITHUB_BRANCH', 'main'),
         ],
 		'public' => [
 			// 磁盘类型

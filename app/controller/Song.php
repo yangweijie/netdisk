@@ -26,9 +26,15 @@ class Song extends BaseController
         $songs = [];
         $files = Filesystem::listContents($dir);
         if($files){
+            $cover = '';
+            if(Filesystem::has("{$dir}/cover.jpg")){
+                $cover = Filesystem::url("{$dir}/cover.jpg");
+            }elseif(Filesystem::has("{$dir}/cover.png")){
+                $cover = Filesystem::url("{$dir}/cover.png");
+            }
             foreach ($files as $file){
                 if($file['type'] === 'file'){
-                    if(in_array($file['extension'], ['mp3'])){
+                    if(in_array($file['extension'], ['mp3','flac', 'ape', 'ogg'])){
                         $names = explode('-', $file['filename']);
                         $song = [
                             'name'=> $names[0],
@@ -38,8 +44,9 @@ class Song extends BaseController
                         $lrcFile = str_replace($file['extension'], 'lrc', $file['path']);
                         if(Filesystem::has($lrcFile)){
                             $song['lrc'] = Filesystem::url($lrcFile);
-                            $cover = str_replace($file['extension'], 'jpg', $file['path']);
-                            $song['cover'] = Filesystem::url($cover);
+                        }
+                        if($cover){
+                            $song['cover'] = $cover;
                         }
                         $songs[] = $song;
                     }
