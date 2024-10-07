@@ -12,6 +12,9 @@ class Song extends BaseController
         $dirs = [];
         foreach ($files as $entry){
             if($entry['type'] === 'dir'){
+                if(config('filesystem.default') == 'github'){
+                    $entry['filename'] = $entry['basename'];
+                }
                 $dirs[] = $entry;
             }
         }
